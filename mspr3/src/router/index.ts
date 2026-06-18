@@ -3,16 +3,17 @@ import LoginRegister from '../views/LoginRegister.vue';
 import Feed from '../views/Feed.vue';
 import CreateContent from '../views/CreateContent.vue';
 import ProfileSettings from '../views/ProfileSettings.vue';
+import MyPosts from '../views/MyPosts.vue';
 
 const routes = [
   { path: '/', name: 'Auth', component: LoginRegister },
   { path: '/feed', name: 'Feed', component: Feed },
   { path: '/create', name: 'Create', component: CreateContent },
   { path: '/profile', name: 'Profile', component: ProfileSettings },
+  { path: '/my-posts', name: 'MyPosts', component: MyPosts },
 ];
 
 const router = createRouter({
-  // Pour Tauri, createWebHistory fonctionne bien, mais createWebHashHistory est parfois préféré si vous avez des soucis de rafraîchissement
   history: createWebHistory(), 
   routes,
 });

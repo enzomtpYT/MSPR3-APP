@@ -4,18 +4,15 @@
       <h2>Nouveau Post</h2>
       <button :disabled="!isValid" @click="publishPost" class="btn-publish">Publier</button>
     </div>
-
     <textarea 
       v-model="content" 
       placeholder="Quoi de neuf ?" 
       rows="5" 
       maxlength="280">
     </textarea>
-    
     <div class="char-counter" :class="{ 'text-red': content.length >= 280 }">
       {{ content.length }} / 280
     </div>
-
     <div class="media-upload">
       <input 
         type="file" 
@@ -29,7 +26,6 @@
         Ajouter Média (Vidéo ou max 4 images)
       </button>
     </div>
-
     <div v-if="files.length > 0" class="preview-area">
       <p>{{ files.length }} fichier(s) sélectionné(s)</p>
       <button @click="files = []" class="btn-clear">Vider</button>
@@ -40,10 +36,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 const content = ref('');
 const files = ref<File[]>([]);
 const errorMsg = ref('');
+const router = useRouter();
 
 const isValid = computed(() => {
   return content.value.trim().length > 0 || files.value.length > 0;
@@ -67,7 +65,6 @@ const handleFileUpload = (event: Event) => {
     files.value = [];
     return;
   }
-
   files.value = selectedFiles;
 };
 
@@ -78,23 +75,20 @@ const publishPost = async () => {
     formData.append(`media[${index}]`, file);
   });
 
-  // Appel API de création
-  console.log('Publication en cours...', content.value, files.value);
+  try {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const response = await fetch(`${apiUrl}/api/posts`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      router.push('/feed');
+    } else {
+      errorMsg.value = "Erreur lors de la publication.";
+    }
+  } catch (error) {
+    errorMsg.value = "Erreur de réseau.";
+  }
 };
 </script>
-
-<style scoped>
-.create-container { padding: 20px; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-textarea { width: 100%; padding: 15px; border: none; border-radius: 12px; background: #f5f5f5; resize: none; font-size: 16px; box-sizing: border-box;}
-textarea:focus { outline: none; border: 1px solid #42b883; }
-.char-counter { text-align: right; font-size: 12px; color: #888; margin-top: 5px; }
-.text-red { color: red; }
-.btn-publish { background: #42b883; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; }
-.btn-publish:disabled { background: #ccc; }
-.media-upload { margin-top: 20px; }
-.btn-media { width: 100%; padding: 15px; border: 2px dashed #ccc; background: transparent; border-radius: 12px; color: #555; }
-.error-msg { color: red; margin-top: 10px; font-size: 14px; }
-.preview-area { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-.btn-clear { background: #ff4d4f; color: white; border: none; padding: 5px 10px; border-radius: 5px; }
-</style>

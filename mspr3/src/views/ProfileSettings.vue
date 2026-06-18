@@ -1,28 +1,35 @@
 <template>
   <div class="profile-container">
     <h2>Éditer le profil</h2>
-
     <div class="avatar-section">
       <img :src="previewAvatar || user.avatar" alt="Avatar" class="avatar-preview" />
       <input type="file" accept="image/*" @change="onAvatarSelected" ref="avatarInput" style="display: none" />
       <button @click="$refs.avatarInput.click()" class="btn-change-avatar">Changer la photo</button>
     </div>
-
     <div class="form-group">
       <label>Nom d'affichage</label>
       <input v-model="user.displayName" type="text" placeholder="Nouveau pseudo" />
     </div>
-
+    <div class="form-group theme-toggle-section">
+      <label>Mode Sombre</label>
+      <label class="switch">
+        <input type="checkbox" :checked="isDarkMode" @change="toggleDarkMode" />
+        <span class="slider round"></span>
+      </label>
+    </div>
     <button @click="saveProfile" class="btn-save">Enregistrer les modifications</button>
+    <button @click="logout" class="btn-save" style="background-color: var(--danger-color); margin-top: 10px;">Se déconnecter</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-// État local (idéalement initialisé via une requête API / Pinia)
+const router = useRouter();
+
 const user = reactive({
-  displayName: 'PseudoActuel',
+  displayName: '',
   avatar: '/default-avatar.png'
 });
 
@@ -33,7 +40,6 @@ const onAvatarSelected = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
     avatarFile.value = target.files[0];
-    // Créer une URL temporaire pour la prévisualisation
     previewAvatar.value = URL.createObjectURL(avatarFile.value);
   }
 };
@@ -45,22 +51,59 @@ const saveProfile = async () => {
     formData.append('avatar', avatarFile.value);
   }
 
-  // Appel API PUT / PATCH sur /profile
-  console.log('Sauvegarde du profil...', user.displayName, avatarFile.value);
+  try {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const response = await fetch(`${apiUrl}/api/profile`, {
+      method: 'PUT',
+      body: formData
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      user.displayName = data.displayName;
+      user.avatar = data.avatar;
+    }
+  } catch (error) {
+  }
 };
 
-onMounted(() => {
-  // Fetch current user details API call here
+const isDarkMode = ref(false);
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+  if (isDarkMode.value) {
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('theme', 'light');
+  }
+};
+
+const logout = async () => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    await fetch(`${apiUrl}/api/auth/logout`, {
+      method: 'POST'
+    });
+  } catch (error) {
+  }
+  localStorage.removeItem('token');
+  router.push('/');
+};
+
+onMounted(async () => {
+  isDarkMode.value = document.body.classList.contains('dark-mode');
+  
+  try {
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+    const response = await fetch(`${apiUrl}/api/profile`);
+    if (response.ok) {
+      const data = await response.json();
+      user.displayName = data.displayName;
+      user.avatar = data.avatar;
+    }
+  } catch (error) {
+  }
 });
 </script>
-
-<style scoped>
-.profile-container { padding: 20px; }
-.avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; }
-.avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 15px; border: 2px solid #42b883; }
-.btn-change-avatar { background: transparent; border: 1px solid #42b883; color: #42b883; padding: 8px 16px; border-radius: 20px; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 5px; color: #555; }
-.form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box;}
-.btn-save { width: 100%; padding: 15px; background: #42b883; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
-</style>
