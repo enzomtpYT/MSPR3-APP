@@ -38,7 +38,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const isLogin = ref(true);
-const errorMessage = ref(''); // State to hold our error text
+const errorMessage = ref('');
 
 const form = reactive({
   displayName: '',
@@ -56,7 +56,7 @@ const handleSubmit = async () => {
   errorMessage.value = '';
 
   try {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+    const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
     const endpoint = isLogin.value ? '/api/v0/auth/login' : '/api/v0/auth/register';
     
     let bodyPayload;
@@ -106,7 +106,7 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     console.error("Fetch error:", error);
-    errorMessage.value = "Impossible de se connecter au serveur.";
+    errorMessage.value = "Impossible de se connecter au serveur. Vérifiez votre connexion ou l'URL de l'API.";
   }
 };
 </script>

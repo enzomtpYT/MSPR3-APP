@@ -7,15 +7,15 @@
       <p v-if="posts.length === 0">Vous n'avez publié aucun post.</p>
       <div v-for="post in posts" :key="post.id" class="post-card">
         <div class="post-header">
-          <img :src="post.author.avatar" alt="Avatar" class="avatar" />
-          <span class="author-name">{{ post.author.displayName }}</span>
+          <img :src="post.author?.avatar ? getMediaUrl(post.author.avatar) : '/default-avatar.png'" alt="Avatar" class="avatar" />
+          <span class="author-name">{{ post.author?.displayName }}</span>
           <button @click="deletePost(post.id)" class="btn-delete-post">Supprimer</button>
         </div>
         <p class="post-content">{{ post.text }}</p>
-        <div v-if="post.media && post.media.length" class="post-media">
-          <video v-if="post.mediaType === 'video'" :src="post.media[0]" controls></video>
+        <div v-if="post.media && post.media.length > 0" class="post-media">
+          <video v-if="post.mediaType === 'video'" :src="getMediaUrl(post.media[0])" controls></video>
           <div v-else class="image-grid">
-            <img v-for="(img, index) in post.media" :key="index" :src="img" alt="Post image" />
+            <img v-for="(img, index) in post.media" :key="index" :src="getMediaUrl(img)" alt="Post image" />
           </div>
         </div>
         <div class="post-actions">
@@ -31,6 +31,14 @@
 import { ref, onMounted } from 'vue';
 
 const posts = ref<any[]>([]);
+
+const getMediaUrl = (url: string | undefined | null) => {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
+  const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '';
+  const formattedUrl = url.startsWith('/') ? url : `/${url}`;
+  return `${apiUrl}${formattedUrl}`;
+};
 
 const fetchMyPosts = async () => {
   try {

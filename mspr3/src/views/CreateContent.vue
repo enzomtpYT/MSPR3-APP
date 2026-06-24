@@ -28,7 +28,7 @@
     </div>
     <div v-if="files.length > 0" class="preview-area">
       <p>{{ files.length }} fichier(s) sélectionné(s)</p>
-      <button @click="files = []" class="btn-clear">Vider</button>
+      <button @click="files = []" class="btn-clear">Supprimer</button>
     </div>
     <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
   </div>
@@ -69,15 +69,22 @@ const handleFileUpload = (event: Event) => {
 };
 
 const publishPost = async () => {
-  const formData = new FormData();
-  formData.append('content', content.value);
-  files.value.forEach((file, index) => {
-    formData.append(`media[${index}]`, file);
-  });
-
   try {
+    const formData = new FormData();
+    formData.append('content', content.value);
+    
+    let mediaType = 'none';
+    if (files.value.length > 0) {
+      mediaType = files.value[0].type.startsWith('video/') ? 'video' : 'image';
+      files.value.forEach((file) => {
+        formData.append('media', file);
+      });
+    }
+    formData.append('mediaType', mediaType);
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem('token');
+    
     const response = await fetch(`${apiUrl}/api/v0/posts/`, {
       method: 'POST',
       headers: {

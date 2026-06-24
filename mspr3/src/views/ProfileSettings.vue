@@ -31,11 +31,14 @@ const router = useRouter();
 const user = reactive({
   id: null,
   displayName: '',
+  email: '',
+  password: ' ',
   avatar: '/default-avatar.png'
 });
 
 const avatarFile = ref<File | null>(null);
 const previewAvatar = ref<string | null>(null);
+const isDarkMode = ref(false);
 
 const onAvatarSelected = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -47,32 +50,45 @@ const onAvatarSelected = (event: Event) => {
 
 const saveProfile = async () => {
   if (!user.id) return;
-  const formData = new FormData();
-  formData.append('User_mail', user.displayName); 
-  if (avatarFile.value) {
-    formData.append('avatar', avatarFile.value);
-  }
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
+  const token = localStorage.getItem('token');
 
   try {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    if (avatarFile.value) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        await fetch(`${apiUrl}/api/v0/users/me/profile_picture`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ profile_picture_url: e.target?.result })
+        });
+      };
+      reader.readAsDataURL(avatarFile.value);
+    }
+
     const response = await fetch(`${apiUrl}/api/v0/users/${user.id}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
-      body: formData 
+      body: JSON.stringify({
+        User_DisplayName: user.displayName,
+        User_mail: user.email,
+        User_password: user.password
+      })
     });
     
     if (response.ok) {
       const data = await response.json();
-      user.displayName = data.User_mail;
+      user.displayName = data.User_DisplayName;
     }
   } catch (error) {
   }
 };
-
-const isDarkMode = ref(false);
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
@@ -115,7 +131,11 @@ onMounted(async () => {
     if (response.ok) {
       const data = await response.json();
       user.id = data.User_ID;
-      user.displayName = data.User_mail;
+      user.displayName = data.User_DisplayName;
+      user.email = data.User_mail;
+      if (data.profile_picture_url) {
+        user.avatar = data.profile_picture_url;
+      }
     }
   } catch (error) {
   }

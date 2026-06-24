@@ -7,9 +7,9 @@
   --nav-text: #888888;
   --nav-active: #42b883;
   --input-bg: #ffffff;
-  --btn-primary-bg: #42b883;
+  --btn-primary-bg: #ff8420;
   --btn-primary-text: #ffffff;
-  --danger-color: #ff4d4f;
+  --danger-color: #ff3300;
 }
 
 .dark-mode {
@@ -19,7 +19,7 @@
   --border-color: #333333;
   --nav-bg: #1e1e1e;
   --nav-text: #aaaaaa;
-  --nav-active: #42b883;
+  --nav-active: #ff8800;
   --input-bg: #2c2c2c;
 }
 
