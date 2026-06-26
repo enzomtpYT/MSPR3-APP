@@ -4,7 +4,7 @@
     <div class="avatar-section">
       <img :src="previewAvatar || user.avatar" alt="Avatar" class="avatar-preview" />
       <input type="file" accept="image/*" @change="onAvatarSelected" ref="avatarInput" style="display: none" />
-      <button @click="$refs.avatarInput.click()" class="btn-change-avatar">Changer la photo</button>
+      <button @click="avatarInput?.click()" class="btn-change-avatar">Changer la photo</button>
     </div>
     <div class="form-group">
       <label>Nom d'affichage</label>
@@ -39,6 +39,7 @@ const user = reactive({
 const avatarFile = ref<File | null>(null);
 const previewAvatar = ref<string | null>(null);
 const isDarkMode = ref(false);
+const avatarInput = ref<HTMLInputElement | null>(null);
 
 const onAvatarSelected = (event: Event) => {
   const target = event.target as HTMLInputElement;

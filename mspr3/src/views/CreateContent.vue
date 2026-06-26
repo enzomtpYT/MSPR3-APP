@@ -22,7 +22,7 @@
         ref="fileInput" 
         style="display: none;" 
       />
-      <button @click="$refs.fileInput.click()" class="btn-media">
+      <button @click="fileInput?.click()" class="btn-media">
         Ajouter Média (Vidéo ou max 4 images)
       </button>
     </div>
@@ -41,6 +41,7 @@ import { useRouter } from 'vue-router';
 const content = ref('');
 const files = ref<File[]>([]);
 const errorMsg = ref('');
+const fileInput = ref<HTMLInputElement | null>(null);
 const router = useRouter();
 
 const isValid = computed(() => {
