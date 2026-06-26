@@ -89,6 +89,21 @@ h1, h2 {
   padding-bottom: 80px; 
 }
 
+.ptr-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: var(--nav-text);
+  font-size: 14px;
+  width: 100%;
+}
+
+.ptr-content {
+  display: flex;
+  align-items: center;
+}
+
 .feed-header, .header { 
   display: flex; 
   flex-direction: column;

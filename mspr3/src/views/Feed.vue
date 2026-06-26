@@ -1,5 +1,21 @@
 <template>
-  <div class="feed-container">
+  <div 
+    class="feed-container"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
+  >
+    <div 
+      class="ptr-indicator" 
+      :style="{ height: pullDistance + 'px', transition: isPulling ? 'none' : 'height 0.3s ease' }"
+    >
+      <div class="ptr-content" :style="{ opacity: pullDistance / 60 }">
+        <span v-if="isRefreshing">↻ Chargement...</span>
+        <span v-else-if="pullDistance >= 60">↓ Relâcher pour rafraîchir</span>
+        <span v-else-if="pullDistance > 0">↓ Tirer pour rafraîchir</span>
+      </div>
+    </div>
+    
     <div class="feed-header">
       <input v-model="searchQuery" @input="handleSearch" type="text" placeholder="Rechercher..." class="search-bar" />
       <div class="sort-options">
@@ -76,6 +92,46 @@ const searchQuery = ref('');
 const sortBy = ref('date');
 const posts = ref<any[]>([]); 
 const currentUserId = ref<number | null>(null);
+
+// Pull to Refresh State
+const isPulling = ref(false);
+const pullDistance = ref(0);
+const startY = ref(0);
+const isRefreshing = ref(false);
+
+const handleTouchStart = (e: TouchEvent) => {
+  const mainContent = document.querySelector('.main-content');
+  if (mainContent && mainContent.scrollTop === 0) {
+    startY.value = e.touches[0].clientY;
+    isPulling.value = true;
+  }
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (!isPulling.value || isRefreshing.value) return;
+  const currentY = e.touches[0].clientY;
+  const distance = currentY - startY.value;
+  
+  if (distance > 0) {
+    pullDistance.value = Math.min(distance * 0.4, 80);
+    if (e.cancelable && distance > 10) e.preventDefault();
+  } else {
+    isPulling.value = false;
+  }
+};
+
+const handleTouchEnd = async () => {
+  if (!isPulling.value) return;
+  isPulling.value = false;
+  
+  if (pullDistance.value >= 60) {
+    isRefreshing.value = true;
+    pullDistance.value = 50;
+    await fetchPosts();
+    isRefreshing.value = false;
+  }
+  pullDistance.value = 0;
+};
 
 const getMediaUrl = (url: string | undefined | null) => {
   if (!url) return '';
