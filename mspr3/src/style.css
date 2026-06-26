@@ -47,6 +47,9 @@ h1, h2 {
   flex: 1;
   overflow-y: auto;
   padding-top: env(safe-area-inset-top);
+}
+
+.main-content.with-nav {
   padding-bottom: calc(70px + env(safe-area-inset-bottom));
 }
 
@@ -261,14 +264,24 @@ video {
   color: var(--text-color); 
 }
 
-.form-group input { 
+.form-group input:not([type="checkbox"]) { 
   width: 100%; 
   padding: 12px; 
   border-radius: 8px; 
   border: 1px solid var(--border-color); 
   background-color: var(--input-bg); 
   color: var(--text-color); 
-  box-sizing: border-box; 
+  box-sizing: border-box;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.checkbox-group label {
+  margin: 0;
 }
 
 .btn-save, .btn-primary { 
@@ -377,7 +390,8 @@ textarea:focus {
   padding: 20px; 
   display: flex; 
   flex-direction: column; 
-  height: 100vh; 
+  min-height: 100%; 
+  box-sizing: border-box;
   justify-content: center; 
 }
 

@@ -43,7 +43,7 @@ const getMediaUrl = (url: string | undefined | null) => {
 const fetchMyPosts = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/posts/me`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -61,7 +61,7 @@ const deletePost = async (postId: number) => {
   
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/posts/${postId}`, {
       method: 'DELETE',
       headers: {

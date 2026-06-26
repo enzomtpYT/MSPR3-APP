@@ -84,7 +84,7 @@ const publishPost = async () => {
     formData.append('mediaType', mediaType);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     
     const response = await fetch(`${apiUrl}/api/v0/posts/`, {
       method: 'POST',

@@ -52,7 +52,7 @@ const onAvatarSelected = (event: Event) => {
 const saveProfile = async () => {
   if (!user.id) return;
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const token = localStorage.getItem('token');
+  const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
 
   try {
     if (avatarFile.value) {
@@ -105,7 +105,7 @@ const toggleDarkMode = () => {
 const logout = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     await fetch(`${apiUrl}/api/v0/auth/logout`, {
       method: 'POST',
       headers: {
@@ -115,6 +115,7 @@ const logout = async () => {
   } catch (error) {
   }
   localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
   router.push('/');
 };
 
@@ -123,7 +124,7 @@ onMounted(async () => {
   
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/users/me`, {
       headers: {
         'Authorization': `Bearer ${token}`

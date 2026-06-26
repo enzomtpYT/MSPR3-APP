@@ -154,7 +154,7 @@ const formatDate = (dateStr: string) => {
 const fetchPosts = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const searchParam = searchQuery.value ? `&search=${encodeURIComponent(searchQuery.value)}` : '';
     
     const response = await fetch(`${apiUrl}/api/v0/posts/?sort=${sortBy.value}${searchParam}`, {
@@ -199,7 +199,7 @@ const handleSearch = () => {
 const likePost = async (postId: number) => {
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ;
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/posts/${postId}/like`, {
       method: 'POST',
       headers: {
@@ -227,7 +227,7 @@ const toggleComments = async (postId: number) => {
   if (post.showComments && post.comments.length === 0 && post.commentsCount > 0) {
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
-      const token = localStorage.getItem('token');
+      const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
       const response = await fetch(`${apiUrl}/api/v0/posts/${postId}/comments`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -246,7 +246,7 @@ const submitComment = async (post: any) => {
 
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/posts/${post.id}/comments`, {
       method: 'POST',
       headers: { 
@@ -275,7 +275,7 @@ const deleteComment = async (postId: number, commentId: number) => {
   
   try {
     const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
-    const token = localStorage.getItem('token');
+    const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
     const response = await fetch(`${apiUrl}/api/v0/posts/${postId}/comments/${commentId}`, {
       method: 'DELETE',
       headers: {
@@ -295,7 +295,7 @@ const deleteComment = async (postId: number, commentId: number) => {
 };
 
 onMounted(() => {
-  const token = localStorage.getItem('token');
+  const token = (localStorage.getItem('token') || sessionStorage.getItem('token'));
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));

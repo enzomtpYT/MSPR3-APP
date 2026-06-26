@@ -21,6 +21,10 @@
         <label>Mot de passe</label>
         <input v-model="form.password" type="password" placeholder="********" required />
       </div>
+      <div v-if="isLogin" class="form-group checkbox-group">
+        <input v-model="form.rememberMe" type="checkbox" id="rememberMe" />
+        <label for="rememberMe" style="font-size: 14px; cursor: pointer;">Se souvenir de moi</label>
+      </div>
       <button type="submit" class="btn-primary">
         {{ isLogin ? 'Se connecter' : 'Créer un compte' }}
       </button>
@@ -43,7 +47,8 @@ const errorMessage = ref('');
 const form = reactive({
   displayName: '',
   email: '',
-  password: ''
+  password: '',
+  rememberMe: false
 });
 
 const toggleMode = () => {
@@ -85,7 +90,11 @@ const handleSubmit = async () => {
     if (response.ok) {
       const data = await response.json();
       if (isLogin.value) {
-        localStorage.setItem('token', data.token);
+        if (form.rememberMe) {
+          localStorage.setItem('token', data.token);
+        } else {
+          sessionStorage.setItem('token', data.token);
+        }
         router.push('/feed');
       } else {
         isLogin.value = true;

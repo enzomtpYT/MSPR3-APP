@@ -1,6 +1,6 @@
 <template>
   <div id="app-container">
-    <main class="main-content">
+    <main :class="['main-content', { 'with-nav': showBottomNav }]">
       <router-view />
     </main>
     <nav v-if="showBottomNav" class="bottom-nav">
